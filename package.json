@@ -1,0 +1,22 @@
+{
+  "name": "se3316-lab3-wcorner",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wescorner/se3316-lab3-wcorner.git"
+  },
+  "author": "Wesley Corner",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/wescorner/se3316-lab3-wcorner/issues"
+  },
+  "homepage": "https://github.com/wescorner/se3316-lab3-wcorner#readme",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
+}
