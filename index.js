@@ -27,20 +27,39 @@ function addDescription(item){
     }
 }
 
-app.get('/', (rec, res) => {
+app.get('/', (req, res) => {
     res.send('Hello World');
 });
 
-app.get('/api/courses', (rec, res) => {
+app.get('/api/courses', (req, res) => {
     res.send(timetable);
 });
 
-app.get('/api/subjectcodes', (rec, res) => {
+app.get('/api/subjectcodes', (req, res) => {
     res.send(subjects);
 });
 
-app.get('/api/descriptions', (rec, res) => {
+app.get('/api/descriptions', (req, res) => {
     res.send(descriptions);
+});
+
+app.get('/api/courses/:subjectcode_id', (req, res) => {
+    const id = req.params.subjectcode_id;
+    
+    var coursecodes = [];
+    timetable.forEach(addCourseCode);
+    function addCourseCode(item){
+        if(id == item.subject){
+            coursecodes.push(item.catalog_nbr);
+        }
+    }
+    if(coursecodes.length == 0){
+        res.status(404).send(`Error- subject code ${id} was not found!`);
+    }
+    else{
+        res.send(coursecodes);
+    }
+    
 });
 
 app.listen(port, () => {
