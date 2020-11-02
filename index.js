@@ -3,9 +3,7 @@ const express = require('express');
 const app = express();
 const port = 3000;
 
-let alltimetables = JSON.parse(JSON.stringify(jsonTimetable));
-
-
+let alltimetables = jsonTimetable;
 
 //root
 app.get('/', (req, res) => {
@@ -83,8 +81,13 @@ app.get('/api/courses/:subjectcode_id/:coursecode_id/:coursecomponent_id?', (req
     const subjectid = req.params.subjectcode_id;
     const courseid = req.params.coursecode_id;
     const coursecomponent = req.params.coursecomponent_id;
+
+    console.log(subjectid);
+    console.log(courseid);
+    console.log(coursecomponent);
+    console.log(alltimetables[0].course_info[0].ssr_component);
     
-    console.log(`GET request for ${req.url}`);;
+    console.log(`GET request for ${req.url}`);
     
     var timetable = [];
 
@@ -102,13 +105,14 @@ app.get('/api/courses/:subjectcode_id/:coursecode_id/:coursecomponent_id?', (req
     
     
     function addTimetable2(item){
-        if (subjectid == item.subject && courseid == item.catalog_nbr && coursecomponent == item.course_info.ssr_component){
+        if (subjectid == item.subject && courseid == item.catalog_nbr && coursecomponent == item.course_info[0].ssr_component){
             timetable.push(item);
         }
      }
     
     let x = 0;
     let y = 0;
+    let z = 0;
 
     //if no timetables were added 
     if(timetable.length == 0){
@@ -119,15 +123,21 @@ app.get('/api/courses/:subjectcode_id/:coursecode_id/:coursecomponent_id?', (req
             if(alltimetables[i].catalog_nbr == courseid){
                 y++;
             }
+            if(alltimetables[i].course_info[0].ssr_component == coursecomponent){
+                z++;
+            }
         }
         if(x == 0 && y > 0){
-            res.status(500).send(`Error- ${subjectid} was not found!`);
+            res.status(404).send(`Error- ${subjectid} was not found!`);
         }
         else if(x > 0 && y == 0) {
-            res.status(500).send(`Error- ${courseid} was not found!`)
+            res.status(404).send(`Error- ${courseid} was not found!`)
+        }
+        else if (x > 0 && y > 0 && z == 0){
+            res.status(404).send(`Error- ${coursecomponent} was not found!`)
         }
         else{
-            res.status(500).send(`Error- ${subjectid} and ${courseid} were not found!`)
+            res.status(404).send(`Error- ${subjectid} and ${courseid} were not found!`)
         }
     }
     else{
