@@ -79,21 +79,34 @@ app.get('/api/coursecodes/:subjectcode_id', (req, res) => {
 });
 
 //for retrieving a timetable with a given subject and course code
-app.get('/api/courses/:subjectcode_id/:coursecode_id', (req, res) => {
+app.get('/api/courses/:subjectcode_id/:coursecode_id/:coursecomponent_id?', (req, res) => {
     const subjectid = req.params.subjectcode_id;
     const courseid = req.params.coursecode_id;
-    console.log(`GET request for ${req.url}`);
-
+    const coursecomponent = req.params.coursecomponent_id;
+    
+    console.log(`GET request for ${req.url}`);;
+    
     var timetable = [];
 
-    alltimetables.forEach(addTimetable);
-
-    function addTimetable(item){
+    if(typeof(coursecomponent) == "undefined"){
+        alltimetables.forEach(addTimetable1);
+    }
+    else{
+        alltimetables.forEach(addTimetable2);
+    }
+    function addTimetable1(item){
         if (subjectid == item.subject && courseid == item.catalog_nbr){
             timetable.push(item);
         }
     }
-
+    
+    
+    function addTimetable2(item){
+        if (subjectid == item.subject && courseid == item.catalog_nbr && coursecomponent == item.course_info.ssr_component){
+            timetable.push(item);
+        }
+     }
+    
     let x = 0;
     let y = 0;
 
