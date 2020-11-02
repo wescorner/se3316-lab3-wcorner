@@ -3,6 +3,14 @@ const express = require('express');
 const app = express();
 const port = 3000;
 
+const {MongoClient} = require('mongodb');
+const uri = "mongodb+srv://wescorner:golfme5665@cluster0.of0tx.mongodb.net/test?retryWrites=true&w=majority";
+const client = new MongoClient(uri, {useNewUrlParser: true, useUnifiedTopology: true});
+try{    
+    client.connect();
+} catch (e){
+    console.error(e);
+}
 let alltimetables = jsonTimetable;
 
 //root
@@ -97,13 +105,15 @@ app.get('/api/courses/:subjectcode_id/:coursecode_id/:coursecomponent_id?', (req
     else{
         alltimetables.forEach(addTimetable2);
     }
+
+    //if a course component is not specified
     function addTimetable1(item){
         if (subjectid == item.subject && courseid == item.catalog_nbr){
             timetable.push(item);
         }
     }
     
-    
+    //if a course component is specified
     function addTimetable2(item){
         if (subjectid == item.subject && courseid == item.catalog_nbr && coursecomponent == item.course_info[0].ssr_component){
             timetable.push(item);
