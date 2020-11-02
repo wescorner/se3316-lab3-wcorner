@@ -3,14 +3,19 @@ const express = require('express');
 const app = express();
 const port = 3000;
 
-let timetable = JSON.parse(JSON.stringify(jsonTimetable));
+let alltimetables = JSON.parse(JSON.stringify(jsonTimetable));
 
+
+
+//root
 app.get('/', (req, res) => {
     res.send('Hello World');
 });
 
+//for listing all timetable data
 app.get('/api/courses', (req, res) => {
-    res.send(timetable);
+    console.log(`GET request for ${req.url}`);
+    res.send(alltimetables);
 });
 
 //for retrieving all subject codes without duplication
@@ -18,7 +23,7 @@ app.get('/api/subjectcodes', (req, res) => {
 
     var subjects = [];
 
-    timetable.forEach(addSubject);
+    alltimetables.forEach(addSubject);
 
     function addSubject(item){
         if(subjects.includes(item.subject)){      
@@ -27,7 +32,7 @@ app.get('/api/subjectcodes', (req, res) => {
             subjects.push(item.subject)
         }
     }
-
+    console.log(`GET request for ${req.url}`);
     res.send(subjects);
 });
 
@@ -36,7 +41,7 @@ app.get('/api/descriptions', (req, res) => {
 
     var descriptions = [];
 
-    timetable.forEach(addDescription);
+    alltimetables.forEach(addDescription);
 
     function addDescription(item){
         if(descriptions.includes(item.className)){       
@@ -45,16 +50,18 @@ app.get('/api/descriptions', (req, res) => {
         descriptions.push(item.className)
         }
     }
+    console.log(`GET request for ${req.url}`);
     res.send(descriptions);
 });
 
 //for retrieving all course codes for a given subject code
-app.get('/api/courses/:subjectcode_id', (req, res) => {
+app.get('/api/coursecodes/:subjectcode_id', (req, res) => {
     const id = req.params.subjectcode_id;
-    
+    console.log(`GET request for ${req.url}`);
+
     var coursecodes = [];
 
-    timetable.forEach(addCourseCode);
+    alltimetables.forEach(addCourseCode);
 
     function addCourseCode(item){
         if(id == item.subject){
@@ -69,6 +76,51 @@ app.get('/api/courses/:subjectcode_id', (req, res) => {
         res.send(coursecodes);
     }
     
+});
+
+//for retrieving a timetable with a given subject and course code
+app.get('/api/courses/:subjectcode_id/:coursecode_id', (req, res) => {
+    const subjectid = req.params.subjectcode_id;
+    const courseid = req.params.coursecode_id;
+    console.log(`GET request for ${req.url}`);
+
+    var timetable = [];
+
+    alltimetables.forEach(addTimetable);
+
+    function addTimetable(item){
+        if (subjectid == item.subject && courseid == item.catalog_nbr){
+            timetable.push(item);
+        }
+    }
+
+    let x = 0;
+    let y = 0;
+
+    //if no timetables were added 
+    if(timetable.length == 0){
+        for(let i = 0; i < alltimetables.length; i++){
+            if(alltimetables[i].subject == subjectid){
+                x++;
+            }
+            if(alltimetables[i].catalog_nbr == courseid){
+                y++;
+            }
+        }
+        if(x == 0 && y > 0){
+            res.status(500).send(`Error- ${subjectid} was not found!`);
+        }
+        else if(x > 0 && y == 0) {
+            res.status(500).send(`Error- ${courseid} was not found!`)
+        }
+        else{
+            res.status(500).send(`Error- ${subjectid} and ${courseid} were not found!`)
+        }
+    }
+    else{
+        res.send(timetable);
+    }
+   
 });
 
 //opening port
