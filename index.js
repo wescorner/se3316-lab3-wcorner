@@ -3,14 +3,24 @@ const express = require('express');
 const app = express();
 const port = 3000;
 
+app.use(express.json());       // to support JSON-encoded bodies
+app.use(express.urlencoded()); // to support URL-encoded bodies
+
+//mongodp connection
 const {MongoClient} = require('mongodb');
 const uri = "mongodb+srv://wescorner:golfme5665@cluster0.of0tx.mongodb.net/test?retryWrites=true&w=majority";
 const client = new MongoClient(uri, {useNewUrlParser: true, useUnifiedTopology: true});
-try{    
-    client.connect();
-} catch (e){
-    console.error(e);
+
+async function connect(){
+    try{    
+        await client.connect();
+        console.log('Connected to MongoDB...');
+    } catch (e){
+        console.error(e);
+    }
 }
+connect().catch(console.error);
+
 let alltimetables = jsonTimetable;
 
 //root
@@ -89,11 +99,6 @@ app.get('/api/courses/:subjectcode_id/:coursecode_id/:coursecomponent_id?', (req
     const subjectid = req.params.subjectcode_id;
     const courseid = req.params.coursecode_id;
     const coursecomponent = req.params.coursecomponent_id;
-
-    console.log(subjectid);
-    console.log(courseid);
-    console.log(coursecomponent);
-    console.log(alltimetables[0].course_info[0].ssr_component);
     
     console.log(`GET request for ${req.url}`);
     
@@ -154,6 +159,23 @@ app.get('/api/courses/:subjectcode_id/:coursecode_id/:coursecomponent_id?', (req
         res.send(timetable);
     }
    
+});
+
+//creating new empty schedule
+
+app.post('/api/createschedule/:name', (req, res) => {
+    const newSchedule = req.params;
+    console.log(client.db.schedulesCollection.find({name: "schedule1"}).limit(1).size);
+    
+    /*
+    async function createSchedule(client, schedule){
+        await client.db("schedulesDatabase").collection("schedulesCollection").insertOne(schedule);
+        console.log(`Made new schedule with name ${newSchedule.name}`);
+    }
+
+    createSchedule(client, newSchedule);
+    res.send(`Made new schedule with name ${newSchedule.name}`);
+    */
 });
 
 //opening port
