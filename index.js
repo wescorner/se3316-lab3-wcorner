@@ -181,19 +181,19 @@ app.post('/api/createschedule/:name', (req, res) => {
 });
 
 //updating existing schedule
-app.put('/api/updateschedule/:name', (req, res) => {
-    const timetableInfo = req.body;
-    const timetableName = req.params.name;
-    const timetableSubjectCode = req.params.subject;
-    const timetableCourseCode = req.params.catalog_nbr;
+app.put('/api/updateschedule/:name/:subject/:catalog_nbr', (req, res) => {
+    const scheduleName = req.params.name;
+    const scheduleSubject = req.params.subject;
+    const scheduleCourse = req.params.catalog_nbr;
 
-    var dbo = client.db("SchedulesDatabase");
-    var myquery = {name: timetableName};
-    var newvalues = {$set: {subject: timetableSubjectCode, catalog_nbr: timetableCourseCode}};
+    var dbo = client.db("schedulesDatabase");
+    var myquery = {name: scheduleName};
+    var newvalues = {$set: {subject: scheduleSubject, catalog_nbr: scheduleCourse}};
     dbo.collection("schedulesCollection").updateOne(myquery, newvalues, function(err, res){
         if(err) throw err;
-        console.log(`Document ${timetableName} updated`);
+        console.log(`Document ${scheduleName} updated`);
     });
+    res.send(`Document ${scheduleName} updated`);
 });
 
 //opening port
