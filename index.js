@@ -165,8 +165,7 @@ var scheduleNames = [];
 //creating new empty schedule
 app.post('/api/createschedule/:name', (req, res) => {
     var newSchedule = req.params;  
-    console.log(newSchedule);  
-    console.log(scheduleNames);
+
     if(scheduleNames.includes(newSchedule.name)){
         res.send(`Error- schedule name ${newSchedule.name} already exists!`)
     }
@@ -176,10 +175,25 @@ app.post('/api/createschedule/:name', (req, res) => {
     }
     async function createSchedule(client, schedule){
         await client.db("schedulesDatabase").collection("schedulesCollection").insertOne(schedule);
-        console.log(`Made new schedule with name ${newSchedule.name}`);
         res.send(`Made new schedule with name ${newSchedule.name}`);
     }
     
+});
+
+//updating existing schedule
+app.put('/api/updateschedule/:name', (req, res) => {
+    const timetableInfo = req.body;
+    const timetableName = req.params.name;
+    const timetableSubjectCode = req.params.subject;
+    const timetableCourseCode = req.params.catalog_nbr;
+
+    var dbo = client.db("SchedulesDatabase");
+    var myquery = {name: timetableName};
+    var newvalues = {$set: {subject: timetableSubjectCode, catalog_nbr: timetableCourseCode}};
+    dbo.collection("schedulesCollection").updateOne(myquery, newvalues, function(err, res){
+        if(err) throw err;
+        console.log(`Document ${timetableName} updated`);
+    });
 });
 
 //opening port
