@@ -161,21 +161,25 @@ app.get('/api/courses/:subjectcode_id/:coursecode_id/:coursecomponent_id?', (req
    
 });
 
+var scheduleNames = [];
 //creating new empty schedule
-
 app.post('/api/createschedule/:name', (req, res) => {
-    const newSchedule = req.params;
-    console.log(client.db.schedulesCollection.find({name: "schedule1"}).limit(1).size);
-    
-    /*
+    var newSchedule = req.params;  
+    console.log(newSchedule);  
+    console.log(scheduleNames);
+    if(scheduleNames.includes(newSchedule.name)){
+        res.send(`Error- schedule name ${newSchedule.name} already exists!`)
+    }
+    else{
+        createSchedule(client, newSchedule);    
+        scheduleNames.push(newSchedule.name);
+    }
     async function createSchedule(client, schedule){
         await client.db("schedulesDatabase").collection("schedulesCollection").insertOne(schedule);
         console.log(`Made new schedule with name ${newSchedule.name}`);
+        res.send(`Made new schedule with name ${newSchedule.name}`);
     }
-
-    createSchedule(client, newSchedule);
-    res.send(`Made new schedule with name ${newSchedule.name}`);
-    */
+    
 });
 
 //opening port
