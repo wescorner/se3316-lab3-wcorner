@@ -8,7 +8,7 @@ app.use(express.urlencoded()); // to support URL-encoded bodies
 
 //mongodp connection
 const {MongoClient} = require('mongodb');
-const uri = "mongodb+srv://wescorner:golfme5665@cluster0.of0tx.mongodb.net/test?retryWrites=true&w=majority";
+const uri = "mongodb+srv://wescorner:golfme5665@cluster0.of0tx.mongodb.net/schedulesDatabase?retryWrites=true&w=majority";
 const client = new MongoClient(uri, {useNewUrlParser: true, useUnifiedTopology: true});
 
 async function connect(){
@@ -180,6 +180,9 @@ app.post('/api/createschedule/:name', (req, res) => {
     
 });
 
+//i now realise i did this wrong and instead of having one subject and one course value
+//it needs to be a list of pairs, meaning an array is needed
+//each schedule on the database will have an array and each element in the array is a pair of subject and course
 //updating existing schedule
 app.put('/api/updateschedule/:name/:subject/:catalog_nbr', (req, res) => {
     const scheduleName = req.params.name;
@@ -194,6 +197,16 @@ app.put('/api/updateschedule/:name/:subject/:catalog_nbr', (req, res) => {
         console.log(`Document ${scheduleName} updated`);
     });
     res.send(`Document ${scheduleName} updated`);
+});
+
+//getting list of pairs in a schedule
+app.get('/api/getschedule/:name', (req, res) => {
+    const scheduleName = req.params.name;
+    client.db("schedulesDatabase").collection("schedulesCollection").find({name: "testschedule1"}, {projection: {_id: 0, name: 0}}).toArray(function(err, result){
+        if (err) throw err;
+        console.log(result);
+        res.send(result);
+    });
 });
 
 //opening port
