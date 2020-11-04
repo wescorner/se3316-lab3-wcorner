@@ -204,7 +204,6 @@ app.get('/api/getschedule/:name', (req, res) => {
     const scheduleName = req.params.name;
     client.db("schedulesDatabase").collection("schedulesCollection").find({name: "testschedule1"}, {projection: {_id: 0, name: 0}}).toArray(function(err, result){
         if (err) throw err;
-        console.log(result);
         res.send(result);
     });
 });
@@ -212,13 +211,19 @@ app.get('/api/getschedule/:name', (req, res) => {
 //deleting a single schedule
 app.delete('/api/deleteschedule/:name', (req, res) => {
     const scheduleName = req.params.name;
-    client.db("schedulesDatabase").collection("schedulesCollection").deleteOne({name: scheduleName}, function(err, obj){
+    client.db("schedulesDatabase").collection("schedulesCollection").deleteOne({name: scheduleName}, (err, obj) => {
         if (err) throw err;
-        console.log(`Schedule ${scheduleName} deleted.`);
         res.send(`Schedule ${scheduleName} deleted.`);
     });
 });
 
+//deleting all schedules
+app.delete('/api/deleteschedule', (req, res) => {
+    client.db("schedulesDatabase").collection("schedulesCollection").deleteMany({}, (err, collection) => {
+        if (err) throw err;
+        res.send(` ${collection.result.n} schedules deleted.`);
+    }); 
+});
 //opening port
 app.listen(port, () => {
     console.log(`Listening on port ${port}...`);
