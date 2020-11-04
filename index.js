@@ -8,7 +8,7 @@ app.use(express.urlencoded()); // to support URL-encoded bodies
 
 //mongodp connection
 const {MongoClient} = require('mongodb');
-const uri = "mongodb+srv://wescorner:golfme5665@cluster0.of0tx.mongodb.net/schedulesDatabase?retryWrites=true&w=majority";
+const uri = "mongodb+srv://wescorner:golfme5665@cluster0.of0tx.mongodb.net/test?retryWrites=true&w=majority";
 const client = new MongoClient(uri, {useNewUrlParser: true, useUnifiedTopology: true});
 
 async function connect(){
@@ -206,6 +206,16 @@ app.get('/api/getschedule/:name', (req, res) => {
         if (err) throw err;
         console.log(result);
         res.send(result);
+    });
+});
+
+//deleting a single schedule
+app.delete('/api/deleteschedule/:name', (req, res) => {
+    const scheduleName = req.params.name;
+    client.db("schedulesDatabase").collection("schedulesCollection").deleteOne({name: scheduleName}, function(err, obj){
+        if (err) throw err;
+        console.log(`Schedule ${scheduleName} deleted.`);
+        res.send(`Schedule ${scheduleName} deleted.`);
     });
 });
 
