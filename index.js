@@ -164,6 +164,7 @@ app.get('/api/courses/:subjectcode_id/:coursecode_id/:coursecomponent_id?', (req
 var scheduleNames = [];
 //creating new empty schedule
 app.post('/api/createschedule/:name', (req, res) => {
+    const scheduleName = req.params.name;
     var newSchedule = req.params;  
 
     if(scheduleNames.includes(newSchedule.name)){
@@ -226,6 +227,19 @@ app.get('/api/getschedule/:name', (req, res) => {
     });
 });
 
+//get list of schedule names and number of courses in each schedule
+app.get('/api/getschedules', (req, res) => {
+    var schedules = [];
+    async function getSchedules(){
+        await client.db("schedulesDatabase").collection("schedulesCollection").find({}, {projection: {_id:0,}}).forEach(function(err, result) {
+            if (err) throw err;
+            schedules.push(result);
+        });    
+    }
+    getSchedules();
+    res.send(schedules);
+});
+
 //deleting a single schedule
 app.delete('/api/deleteschedule/:name', (req, res) => {
     const scheduleName = req.params.name;
@@ -242,6 +256,7 @@ app.delete('/api/deleteschedule', (req, res) => {
         res.send(` ${collection.result.n} schedules deleted.`);
     }); 
 });
+
 //opening port
 app.listen(port, () => {
     console.log(`Listening on port ${port}...`);
