@@ -189,14 +189,28 @@ app.put('/api/updateschedule/:name/:subject/:catalog_nbr', (req, res) => {
     const scheduleSubject = req.params.subject;
     const scheduleCourse = req.params.catalog_nbr;
 
-    var dbo = client.db("schedulesDatabase");
-    var myquery = {name: scheduleName};
-    var newvalues = {$set: {subject: scheduleSubject, catalog_nbr: scheduleCourse}};
-    dbo.collection("schedulesCollection").updateOne(myquery, newvalues, function(err, res){
-        if(err) throw err;
-        console.log(`Document ${scheduleName} updated`);
-    });
-    res.send(`Document ${scheduleName} updated`);
+    scheduleExists();
+    //console.log(client.db("schedulesDatabase").collection("schedulesCollection").find({name: scheduleName}).count());
+    async function scheduleExists(){
+        result = await client.db("schedulesDatabase").collection("schedulesCollection").find({name: scheduleName}).count()>0;
+        return result;
+    }
+    //if that schedule exists
+    if(scheduleExists()){
+        var dbo = client.db("schedulesDatabase");
+        var myquery = {name: scheduleName};
+        var newvalues = {$set: {subject: scheduleSubject, catalog_nbr: scheduleCourse}};
+        dbo.collection("schedulesCollection").updateOne(myquery, newvalues, function(err, res){
+            if(err) throw err;
+            console.log(`Document ${scheduleName} updated`);
+        });
+        res.send(`Document ${scheduleName} updated`);
+    }
+    //if schedule does not exist
+    else{
+        res.status(400).send(`Error- ${scheduleName} does not exist!`);
+    }
+    
 });
 
 //getting list of pairs in a schedule
