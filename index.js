@@ -235,7 +235,7 @@ app.put('/api/updateschedule/:name/', (req, res) => {
 //getting list of pairs in a schedule
 app.get('/api/getschedule/:name', (req, res) => {
     const scheduleName = req.params.name;
-    client.db("schedulesDatabase").collection("schedulesCollection").find({name: "testschedule1"}, {projection: {_id: 0, name: 0}}).toArray(function(err, result){
+    client.db("schedulesDatabase").collection("schedulesCollection").find({name: scheduleName}, {projection: {_id: 0, name: 0}}).toArray(function(err, result){
         if (err) throw err;
         res.send(result);
     });
@@ -244,14 +244,19 @@ app.get('/api/getschedule/:name', (req, res) => {
 //get list of schedule names and number of courses in each schedule
 app.get('/api/getschedules', (req, res) => {
     var schedules = [];
-    async function getSchedules(){
-        await client.db("schedulesDatabase").collection("schedulesCollection").find({}, {projection: {_id:0,}}).forEach(function(err, result) {
+    coursesArray = [];
+    function getSchedules(){
+        client.db("schedulesDatabase").collection("schedulesCollection").find({}, {projection: {_id: 0}}).toArray(function(err, result){
             if (err) throw err;
-            schedules.push(result);
-        });    
+            for(let i = 0; i < result.length; i++){
+                schedules.push({name: result[i].name, courses: result[i].courses.length});
+            } 
+            res.send(schedules);  
+        });
+
     }
     getSchedules();
-    res.send(schedules);
+
 });
 
 //deleting a single schedule
