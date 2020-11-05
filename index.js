@@ -1,6 +1,6 @@
 const jsonTimetable = require('C:/Users/Wesley/Documents/GitHub/se3316-lab3-wcorner/Lab3-timetable-data.json');
 const express = require('express');
-const sanitizer = require('express-auto-sanitize');
+const expAutoSan = require('express-autosanitizer');
 const bodyParser = require('body-parser');
 
 const app = express();
@@ -10,15 +10,7 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.use(express.json());       
 app.use(express.urlencoded()); 
 
-//putting auto input sanitizer into use
-const options = {
-    query: Boolean,
-    body: Boolean,
-    cookies: Boolean,
-    original: Boolean,
-    sanitizerFunction: Function,
-}
-app.use(sanitizer(options));
+app.use(expAutoSan.all);
 
 //mongodp connection
 const {MongoClient} = require('mongodb');
