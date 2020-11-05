@@ -1,6 +1,7 @@
 const jsonTimetable = require('C:/Users/Wesley/Documents/GitHub/se3316-lab3-wcorner/Lab3-timetable-data.json');
 const express = require('express');
 const sanitizer = require('express-auto-sanitize');
+
 const app = express();
 const port = 3000;
 
@@ -172,24 +173,30 @@ app.get('/api/courses/:subjectcode_id/:coursecode_id/:coursecomponent_id?', (req
    
 });
 
-var scheduleNames = [];
+
 //creating new empty schedule
 app.post('/api/createschedule/:name', (req, res) => {
     const scheduleName = req.params.name;
     var newSchedule = req.params;  
 
-    if(scheduleNames.includes(newSchedule.name)){
-        res.send(`Error- schedule name ${newSchedule.name} already exists!`)
+    async function scheduleExists(){
+        result = await client.db("schedulesDatabase").collection("schedulesCollection").find({name: scheduleName}).count()>0;
+        return result;
     }
-    else{
-        createSchedule(client, newSchedule);    
-        scheduleNames.push(newSchedule.name);
+
+    async function createSchedule(scheduleName){
+        var exists = await scheduleExists();
+        //if schedule exists
+        if(exists == true){
+            res.status(400).send(`Error- ${scheduleName} already exists!`);    
+        }
+        //if schedule does not exist
+        else{
+            await client.db("schedulesDatabase").collection("schedulesCollection").insertOne({name: scheduleName});
+            res.send(`Made new schedule with name ${newSchedule.name}`);
+        }
     }
-    async function createSchedule(client, schedule){
-        await client.db("schedulesDatabase").collection("schedulesCollection").insertOne(schedule);
-        res.send(`Made new schedule with name ${newSchedule.name}`);
-    }
-    
+    createSchedule(scheduleName);
 });
 
 //i now realise i did this wrong and instead of having one subject and one course value
@@ -204,7 +211,6 @@ app.put('/api/updateschedule/:name/:subject/:catalog_nbr', (req, res) => {
     //check if schedule exists
     async function scheduleExists(){
         result = await client.db("schedulesDatabase").collection("schedulesCollection").find({name: scheduleName}).count()>0;
-        console.log(result);
         return result;
     }
 
@@ -221,7 +227,6 @@ app.put('/api/updateschedule/:name/:subject/:catalog_nbr', (req, res) => {
         }
         //if schedule does not exist
         else{
-            console.log(result);
             res.status(404).send(`Error- ${scheduleName} does not exist!`);
         }
     }
