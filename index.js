@@ -1,12 +1,14 @@
 const jsonTimetable = require('C:/Users/Wesley/Documents/GitHub/se3316-lab3-wcorner/Lab3-timetable-data.json');
 const express = require('express');
 const sanitizer = require('express-auto-sanitize');
+const bodyParser = require('body-parser');
 
 const app = express();
 const port = 3000;
 
+app.use(bodyParser.urlencoded({extended: true}));
 app.use(express.json());       // to support JSON-encoded bodies
-app.use(express.urlencoded()); // to support URL-encoded bodies
+//app.use(express.urlencoded()); // to support URL-encoded bodies
 
 //putting auto input sanitizer into use
 const options = {
@@ -16,7 +18,7 @@ const options = {
     original: Boolean,
     sanitizerFunction: Function,
 }
-app.use(sanitizer(options));
+//app.use(sanitizer(options));
 
 //mongodp connection
 const {MongoClient} = require('mongodb');
@@ -199,15 +201,11 @@ app.post('/api/createschedule/:name', (req, res) => {
     createSchedule(scheduleName);
 });
 
-//i now realise i did this wrong and instead of having one subject and one course value
-//it needs to be a list of pairs, meaning an array is needed
-//each schedule on the database will have an array and each element in the array is a pair of subject and course
 //updating existing schedule
-app.put('/api/updateschedule/:name/:subject/:catalog_nbr', (req, res) => {
+app.put('/api/updateschedule/:name/', (req, res) => {
     const scheduleName = req.params.name;
-    const scheduleSubject = req.params.subject;
-    const scheduleCourse = req.params.catalog_nbr;
-
+    const courses = req.body;
+    
     //check if schedule exists
     async function scheduleExists(){
         result = await client.db("schedulesDatabase").collection("schedulesCollection").find({name: scheduleName}).count()>0;
@@ -219,11 +217,11 @@ app.put('/api/updateschedule/:name/:subject/:catalog_nbr', (req, res) => {
         //if schedule exists
         if(exists == true){
             var myquery = {name: scheduleName};
-            var newvalues = {$set: {subject: scheduleSubject, catalog_nbr: scheduleCourse}};
+            var newvalues = {$set: {courses}};
             client.db("schedulesDatabase").collection("schedulesCollection").updateOne(myquery, newvalues, (err, res) => {
                 if(err) throw err;               
             });
-            res.send(`Document ${scheduleName} updated`);
+            res.send(`Schedule ${scheduleName} updated`);
         }
         //if schedule does not exist
         else{
