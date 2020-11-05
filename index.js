@@ -7,8 +7,8 @@ const app = express();
 const port = 3000;
 
 app.use(bodyParser.urlencoded({extended: true}));
-app.use(express.json());       // to support JSON-encoded bodies
-//app.use(express.urlencoded()); // to support URL-encoded bodies
+app.use(express.json());       
+app.use(express.urlencoded()); 
 
 //putting auto input sanitizer into use
 const options = {
@@ -18,7 +18,7 @@ const options = {
     original: Boolean,
     sanitizerFunction: Function,
 }
-//app.use(sanitizer(options));
+app.use(sanitizer(options));
 
 //mongodp connection
 const {MongoClient} = require('mongodb');
@@ -181,6 +181,8 @@ app.post('/api/createschedule/:name', (req, res) => {
     const scheduleName = req.params.name;
     var newSchedule = req.params;  
 
+    console.log(`POST request for ${req.url}`);
+
     async function scheduleExists(){
         result = await client.db("schedulesDatabase").collection("schedulesCollection").find({name: scheduleName}).count()>0;
         return result;
@@ -205,6 +207,8 @@ app.post('/api/createschedule/:name', (req, res) => {
 app.put('/api/updateschedule/:name/', (req, res) => {
     const scheduleName = req.params.name;
     const courses = req.body;
+
+    console.log(`PUT request for ${req.url}`);
     
     //check if schedule exists
     async function scheduleExists(){
@@ -235,6 +239,9 @@ app.put('/api/updateschedule/:name/', (req, res) => {
 //getting list of pairs in a schedule
 app.get('/api/getschedule/:name', (req, res) => {
     const scheduleName = req.params.name;
+
+    console.log(`GET request for ${req.url}`);
+
     client.db("schedulesDatabase").collection("schedulesCollection").find({name: scheduleName}, {projection: {_id: 0, name: 0}}).toArray(function(err, result){
         if (err) throw err;
         res.send(result);
@@ -243,6 +250,8 @@ app.get('/api/getschedule/:name', (req, res) => {
 
 //get list of schedule names and number of courses in each schedule
 app.get('/api/getschedules', (req, res) => {
+    console.log(`GET request for ${req.url}`);
+
     var schedules = [];
     coursesArray = [];
     function getSchedules(){
@@ -262,6 +271,7 @@ app.get('/api/getschedules', (req, res) => {
 //deleting a single schedule
 app.delete('/api/deleteschedule/:name', (req, res) => {
     const scheduleName = req.params.name;
+    console.log(`DELETE request for ${req.url}`);
     client.db("schedulesDatabase").collection("schedulesCollection").deleteOne({name: scheduleName}, (err, obj) => {
         if (err) throw err;
         res.send(`Schedule ${scheduleName} deleted.`);
@@ -270,6 +280,7 @@ app.delete('/api/deleteschedule/:name', (req, res) => {
 
 //deleting all schedules
 app.delete('/api/deleteschedule', (req, res) => {
+    console.log(`DELETE request for ${req.url}`);
     client.db("schedulesDatabase").collection("schedulesCollection").deleteMany({}, (err, collection) => {
         if (err) throw err;
         res.send(` ${collection.result.n} schedules deleted.`);
